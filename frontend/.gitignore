@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Next.js build
+.next/
+out/
+build/
+dist/
+
+# Env & Secrets
+.env
+.env*
+!.env.example
+.env.local
+.env.production

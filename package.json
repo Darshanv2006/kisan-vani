@@ -1,0 +1,11 @@
+{
+  "name": "kisan-vani-voice-agent",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "npx concurrently \"python -m uvicorn backend.main:app --port 8000\" \"npm run dev --prefix frontend\"",
+    "dev:livekit": "npx concurrently \"cd murf-livekit-starter/backend && uv run src/agent.py dev\" \"cd murf-livekit-starter/frontend && pnpm dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
