@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server';
-import { AccessToken, type AccessTokenOptions, type VideoGrant } from 'livekit-server-sdk';
+import { AccessToken, type VideoGrant } from 'livekit-server-sdk';
 
-const API_KEY = process.env.LIVEKIT_API_KEY || 'APIHK26zgJLTfeH';
-const API_SECRET = process.env.LIVEKIT_API_SECRET || 'CLqdYUFBf0b7k7MM1CAE3oIQhBZQXA1TkMHf9oZSdesA';
-const LIVEKIT_URL = process.env.LIVEKIT_URL || process.env.NEXT_PUBLIC_LIVEKIT_URL || 'wss://shivu-p6k39h2q.livekit.cloud';
+const API_KEY = process.env.LIVEKIT_API_KEY || 'APIhtTUUo3F8dEV';
+const API_SECRET = process.env.LIVEKIT_API_SECRET || 'j9TnYcji7L91hkFFPr8SW1O32Pi5cmDlz93eL5sBV5R';
+const LIVEKIT_URL = process.env.LIVEKIT_URL || process.env.NEXT_PUBLIC_LIVEKIT_URL || 'wss://day2-d8gx33dt.livekit.cloud';
 
 export const revalidate = 0;
 
-export async function POST(req: Request) {
+export async function POST() {
   try {
     const participantName = 'Farmer';
     const participantIdentity = `kisan_farmer_${Math.floor(Math.random() * 10000)}`;

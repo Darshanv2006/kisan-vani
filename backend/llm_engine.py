@@ -1,7 +1,32 @@
 import os
+import sys
 import time
 import requests
 from typing import Optional
+from dotenv import load_dotenv
+
+load_dotenv()
+
+if hasattr(sys.stdout, 'reconfigure'):
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+
+def safe_print(*args, **kwargs):
+    try:
+        msg = " ".join(str(a) for a in args)
+        sys.stdout.write(msg + "\n")
+        sys.stdout.flush()
+    except Exception:
+        try:
+            msg = " ".join(str(a) for a in args)
+            clean_msg = msg.encode("ascii", "replace").decode("ascii")
+            sys.stdout.write(clean_msg + "\n")
+            sys.stdout.flush()
+        except Exception:
+            pass
 
 class AgriLLMEngine:
     """
@@ -92,21 +117,21 @@ class AgriLLMEngine:
                         {"role": "system", "content": self.SYSTEM_PROMPT},
                         {"role": "user", "content": prompt},
                     ],
-                    "max_tokens": 40,
+                    "max_tokens": 70,
                     "temperature": 0.3,
                     "stream": False,
                 },
-                timeout=1.5,
+                timeout=2.5,
             )
             elapsed = int((time.time() - start) * 1000)
             if res.status_code == 200:
                 data = res.json()
                 text = data["choices"][0]["message"]["content"].strip()
                 if text:
-                    print(f"[Groq] LLM response in {elapsed}ms: {text[:80]}...")
+                    safe_print(f"[Groq] LLM response in {elapsed}ms: {text[:80]}...")
                     return text
         except Exception as e:
-            print(f"[Groq] Error: {e}")
+            safe_print(f"[Groq] Error: {e}")
         return None
 
     def _call_gemini(self, prompt: str) -> Optional[str]:
@@ -119,7 +144,7 @@ class AgriLLMEngine:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={self.google_key.strip()}"
             payload = {
                 "contents": [{"parts": [{"text": f"{self.SYSTEM_PROMPT}\n\nFarmer Query: {prompt}"}]}],
-                "generationConfig": {"temperature": 0.2, "maxOutputTokens": 25},
+                "generationConfig": {"temperature": 0.2, "maxOutputTokens": 70},
             }
             res = self.session.post(url, json=payload, timeout=1.5)
             if res.status_code == 200:
@@ -151,25 +176,30 @@ class AgriLLMEngine:
         ]
         for key in intent_priority:
             if key in prompt_lower and key in self.AGRI_KNOWLEDGE_BASE:
-                print(f"[KnowledgeBase Fast-Path] Matched keyword '{key}' in <1ms")
+                safe_print(f"[KnowledgeBase Fast-Path] Matched keyword '{key}' in <1ms")
                 return self.AGRI_KNOWLEDGE_BASE[key]
 
         for key, response in self.AGRI_KNOWLEDGE_BASE.items():
             if key in prompt_lower:
-                print(f"[KnowledgeBase Fast-Path] Matched '{key}' in <1ms")
+                safe_print(f"[KnowledgeBase Fast-Path] Matched '{key}' in <1ms")
                 return response
 
-        # 2. Groq Cloud — Ultra-fast sub-50ms Llama 3.1 8B
+        # 2. Local Ollama LLM (qwen2.5:3b / llama3.2 / mistral) - Priority Local Engine
+        ollama_result = self._call_ollama(prompt)
+        if ollama_result:
+            return ollama_result
+
+        # 3. Groq Cloud — Ultra-fast sub-500ms Llama 3.1 8B on LPU
         groq_result = self._call_groq(prompt)
         if groq_result:
             return groq_result
 
-        # 3. Google AI Studio (Gemini Flash)
+        # 4. Google AI Studio (Gemini Flash)
         gemini_result = self._call_gemini(prompt)
         if gemini_result:
             return gemini_result
 
-        # 4. OpenAI fallback if configured
+        # 5. OpenAI fallback if configured
         if self.openai_key and self.openai_key.startswith("sk-"):
             try:
                 from openai import OpenAI
@@ -187,8 +217,38 @@ class AgriLLMEngine:
             except Exception:
                 pass
 
-        # 5. Dynamic Fallback
+        # 6. Dynamic Fallback
         return f"Namaste! For '{prompt.capitalize()}', consult your local Krishi Vigyan Kendra or APMC office for guidance."
+
+    def _call_ollama(self, prompt: str) -> Optional[str]:
+        """
+        Local Ollama inference supporting qwen2.5:3b, llama3.2, llama3, or mistral.
+        """
+        models_to_try = ["qwen2.5:3b", "llama3.2", "qwen2.5", "llama3", "mistral", "gemma2"]
+        url = "http://localhost:11434/api/generate"
+
+        for model_name in models_to_try:
+            try:
+                start = time.time()
+                payload = {
+                    "model": model_name,
+                    "prompt": f"{self.SYSTEM_PROMPT}\n\nFarmer Query: {prompt}",
+                    "stream": False,
+                    "options": {
+                        "num_predict": 50,
+                        "temperature": 0.3
+                    }
+                }
+                res = self.session.post(url, json=payload, timeout=2.0)
+                elapsed = int((time.time() - start) * 1000)
+                if res.status_code == 200:
+                    text = res.json().get("response", "").strip()
+                    if text:
+                        safe_print(f"[Ollama Local ({model_name})] LLM response in {elapsed}ms: {text[:80]}...")
+                        return text
+            except Exception:
+                continue
+        return None
 
 if __name__ == "__main__":
     engine = AgriLLMEngine()

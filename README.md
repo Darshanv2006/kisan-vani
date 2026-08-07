@@ -142,6 +142,15 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to start usi
 
 ---
 
+## 🎙️ Day 2 Challenge Updates - Murf Falcon Voice Pipeline
+
+- **Persona**: Kisan Vani (Friendly, knowledgeable Indian agricultural advisory persona).
+- **Voice Engine**: Murf Falcon TTS (`en-IN-pooja` voice, `Conversational` style).
+- **Auto-Greeting**: Automated intro script delivered seamlessly upon LiveKit WebRTC room connection with 2-second natural pause gaps.
+- **LLM Engine**: Ultra-low-latency Groq (`llama-3.1-8b-instant`) / Gemini Flash fallback for sub-500ms response cycles.
+
+---
+
 ## 🔮 Future Improvements
 
 - [ ] Support for regional Indian dialects (Kannada, Telugu, Marathi, Punjabi, Tamil).
@@ -154,3 +163,4 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to start usi
 ## 📜 License
 
 This project is licensed under the [MIT License](LICENSE).
+

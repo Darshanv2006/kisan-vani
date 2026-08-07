@@ -1,9 +1,23 @@
 import os
+import sys
+import time
 import requests
 from typing import Tuple, Optional
 from dotenv import load_dotenv
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
+
+def safe_print(*args, **kwargs):
+    try:
+        print(*args, **kwargs)
+    except Exception:
+        try:
+            msg = " ".join(str(a) for a in args)
+            clean_msg = msg.encode("ascii", "replace").decode("ascii")
+            sys.stdout.write(clean_msg + "\n")
+            sys.stdout.flush()
+        except Exception:
+            pass
 
 load_dotenv()
 
@@ -37,14 +51,16 @@ class DeepgramSTTEngine:
         if not self.api_key or self.api_key in ["your_deepgram_api_key_here", "YOUR_API_KEY"]:
             return False, "Deepgram API key not configured."
 
-        endpoint = "https://api.deepgram.com/v1/listen?model=nova-2&smart_format=true&punctuate=true&detect_language=true"
+        endpoint = "https://api.deepgram.com/v1/listen?model=nova-3&smart_format=true&punctuate=true"
         headers = {
             "Authorization": f"Token {self.api_key}",
             "Content-Type": content_type if content_type else "audio/webm"
         }
 
+        start_time = time.perf_counter()
         try:
-            response = self.session.post(endpoint, headers=headers, data=audio_bytes, timeout=6)
+            response = self.session.post(endpoint, headers=headers, data=audio_bytes, timeout=4)
+            stt_latency_ms = round((time.perf_counter() - start_time) * 1000, 1)
             if response.status_code == 200:
                 data = response.json()
                 channels = data.get("results", {}).get("channels", [])
@@ -53,12 +69,14 @@ class DeepgramSTTEngine:
                     if alternatives:
                         transcript = alternatives[0].get("transcript", "").strip()
                         if transcript:
-                            print(f"🎙️ [Deepgram STT] Recognized transcript: '{transcript}'")
+                            print(f"[STT nova-3] ({stt_latency_ms}ms) Transcript: '{transcript}'")
                             return True, transcript
                 return False, "No audible speech detected."
             else:
-                print(f"⚠️ [Deepgram STT] Status {response.status_code}: {response.text}")
+                safe_text = response.text.encode('ascii', 'replace').decode('ascii')
+                print(f"[STT WARNING] Status {response.status_code}: {safe_text}")
                 return False, "No audible speech detected."
         except Exception as e:
-            print(f"❌ [Deepgram STT] Error: {e}")
-            return False, f"Deepgram connection error: {str(e)}"
+            safe_err = str(e).encode('ascii', 'replace').decode('ascii')
+            print(f"[STT ERROR]: {safe_err}")
+            return False, f"Deepgram connection error: {safe_err}"
