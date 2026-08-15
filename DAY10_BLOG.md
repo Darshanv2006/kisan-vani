@@ -72,6 +72,18 @@ Kisan Vani functions as a full-stack, real-time agricultural voice assistant. Ke
 
 ---
 
+## 🎬 Day 10 Video Demonstration
+
+Watch the complete automated 10-Day Journey narration and live voice interaction of Kisan Vani in action:
+
+https://raw.githubusercontent.com/Darshanv2006/kisan-vani/main/video/kisan_vani_day10_demo.mp4
+
+<video src="https://raw.githubusercontent.com/Darshanv2006/kisan-vani/main/video/kisan_vani_day10_demo.mp4" controls width="100%"></video>
+
+> 💡 **Video Direct Link:** You can also watch or download the raw HD video directly in the [Kisan Vani GitHub Repository Video Directory](https://github.com/Darshanv2006/kisan-vani/tree/main/video/kisan_vani_day10_demo.mp4).
+
+---
+
 ## 3. How the Voice Architecture Works
 
 The architecture follows a low-latency, event-driven streaming pipeline powered by the **LiveKit Agents SDK (`livekit-agents ~1.4`)** in Python, combined with WebRTC transport and specialized cloud services.
