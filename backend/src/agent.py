@@ -680,24 +680,35 @@ async def my_agent(ctx: JobContext):
     demo_mode = os.getenv("KISAN_VANI_DEMO_MODE", "").lower() in ("true", "1", "yes")
 
     if demo_mode:
-        demo_narration = (
-            "Namaste! I'm Kisan Vani, an AI voice assistant built to help Indian farmers. "
-            "Let me show you my journey through the 10 Days of Voice Agents — VoiceForBharat Edition. "
-            "On Day 1, I started as a basic real-time voice agent. "
-            "On Day 2, I gained a clear personality, objectives, and safety guardrails so that I could provide useful and responsible agricultural assistance. "
-            "Then I learned to work with agricultural information and tools, helping farmers with questions such as weather and mandi price information. "
-            "I also learned to remember returning farmers using persistent memory, so conversations can become more contextual over time. "
-            "Next came real phone communication. I was connected to LiveKit telephony so I could make outbound calls and communicate with farmers through SIP. "
-            "I also learned how to ask for human help when a situation needs a specialist or human intervention. "
-            "On Day 8, I gained a call analytics dashboard that tracks total calls, successful calls, and failed calls using real call data. "
-            "On Day 9, I became a multi-agent system. When a farmer has a complex crop disease or pest problem, I can hand the conversation to a Crop Specialist agent and pass along the issue summary. "
-            "Behind me are technologies including LiveKit for real-time communication, Deepgram for speech recognition, an LLM for reasoning, and Murf Falcon for natural voice generation. "
-            "And today, on Day 10, I'm sharing everything I learned so that other developers can build their own voice agents. "
-            "I'm Kisan Vani — a voice-first AI assistant built for Indian farmers. This is my 10-day journey. "
+        demo_sentences = [
+            "Namaste! I'm Kisan Vani, an AI voice assistant built to help Indian farmers.",
+            "Let me show you my journey through the 10 Days of Voice Agents — VoiceForBharat Edition.",
+            "On Day 1, I started as a basic real-time voice agent.",
+            "On Day 2, I gained a clear personality, objectives, and safety guardrails so that I could provide useful and responsible agricultural assistance.",
+            "Then I learned to work with agricultural information and tools, helping farmers with questions such as weather and mandi price information.",
+            "I also learned to remember returning farmers using persistent memory, so conversations can become more contextual over time.",
+            "Next came real phone communication. I was connected to LiveKit telephony so I could make outbound calls and communicate with farmers through SIP.",
+            "I also learned how to ask for human help when a situation needs a specialist or human intervention.",
+            "On Day 8, I gained a call analytics dashboard that tracks total calls, successful calls, and failed calls using real call data.",
+            "On Day 9, I became a multi-agent system. When a farmer has a complex crop disease or pest problem, I can hand the conversation to a Crop Specialist agent and pass along the issue summary.",
+            "Behind me are technologies including LiveKit for real-time communication, Deepgram for speech recognition, an LLM for reasoning, and Murf Falcon for natural voice generation.",
+            "And today, on Day 10, I'm sharing everything I learned so that other developers can build their own voice agents.",
+            "I'm Kisan Vani — a voice-first AI assistant built for Indian farmers. This is my 10-day journey.",
             "I'm ready to help you now."
-        )
-        logger.info("🎬 [DEMO MODE ACTIVE] Triggering automatic Day 10 narration...")
-        session.say(demo_narration, add_to_chat_ctx=True)
+        ]
+
+        async def run_demo_narration():
+            logger.info("🎬 [DEMO MODE ACTIVE] Triggering smooth sentence-by-sentence Day 10 narration...")
+            for sentence in demo_sentences:
+                try:
+                    handle = session.say(sentence, add_to_chat_ctx=True)
+                    await handle.wait_for_playout()
+                    await asyncio.sleep(0.15)
+                except Exception as err:
+                    logger.warning(f"Demo narration playout step notice: {err}")
+                    break
+
+        asyncio.create_task(run_demo_narration())
     else:
         greeting = "Hello! Welcome to Kisan Vani. How can I assist you with your crops or farm today?"
         session.say(greeting, add_to_chat_ctx=True)
