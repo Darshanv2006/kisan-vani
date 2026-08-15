@@ -1,13 +1,13 @@
 ---
 title: "Building Kisan Vani: My 10-Day Journey Building a Voice Agent for Indian Farmers"
 published: true
-description: "A Production-Grade, Low-Latency AI Voice Assistant for Indian Agriculture Powered by LiveKit, Murf Falcon TTS, Deepgram Nova-3 STT, and Google Gemini / Groq LLMs."
+description: "A Working AI Voice Assistant Prototype for Indian Agriculture Powered by LiveKit, Murf Falcon TTS, Deepgram Nova-3 STT, and Google Gemini / Groq LLMs."
 tags: voiceai, ai, python, voiceforbharat
 ---
 
 # Building Kisan Vani: My 10-Day Journey Building a Voice Agent for Indian Farmers
 
-> **A Production-Grade, Low-Latency AI Voice Assistant for Indian Agriculture Powered by LiveKit, Murf Falcon TTS, Deepgram Nova-3 STT, and Google Gemini / Groq LLMs.**
+> **A Working AI Voice Assistant Prototype for Indian Agriculture Powered by LiveKit, Murf Falcon TTS, Deepgram Nova-3 STT, and Google Gemini / Groq LLMs.**
 
 
 ---
@@ -62,7 +62,7 @@ Kisan Vani functions as a full-stack, real-time agricultural voice assistant. Ke
 - **Live Weather Forecasting**: Retrieves current temperature, maximum/minimum daily temperatures, relative humidity, wind speed, and rain probability using an automated tool lookup.
 - **Mandi Market Rates**: Provides benchmark market prices per quintal (₹ INR) across major agricultural mandis for cotton, wheat, rice, mustard, onion, and potato.
 - **Farmer Profile Memory**: Persists farmer profile attributes (name, district, crops grown, irrigation type, land size) across calls in a local SQLite database.
-- **Specialist Multi-Agent Handoff**: Seamlessly transfers complex plant disease or pest emergency queries to a specialized `CropSpecialist` agent without losing context.
+- **Specialist Multi-Agent Handoff**: Transfers complex plant disease or pest emergency queries to a specialized `CropSpecialist` agent, passing an issue summary in real time.
 - **Outbound Telephony (SIP)**: Initiates outbound telephone calls directly to a farmer's SIP softphone (e.g., Linphone) or telephony trunk.
 - **Human Officer Escalation**: Generates official escalation tickets (with farmer consent) for unresolvable issues, persisting tickets locally and alerting via Discord Webhooks.
 - **Call Session Analytics**: Automatically logs call durations, success/failure statuses, tools executed, and query categories into SQLite and renders a dedicated Web Analytics Dashboard.
@@ -365,7 +365,7 @@ stateDiagram-v2
    specialist = CropSpecialist(profile=self.profile, issue_summary=issue_summary)
    context.session.update_agent(specialist)
    ```
-3. **Context Preservation**: `CropSpecialist` receives the cleaned `issue_summary` in its system prompt constructor, ensuring it immediately addresses the symptoms without asking the farmer to repeat themselves.
+3. **Context Preservation**: `CropSpecialist` receives the cleaned `issue_summary` in its system prompt constructor, aiming to address the symptoms directly using the passed issue summary.
 4. **Handoff Return**: The specialist can execute `hand_back_to_main_agent` to return control to the main `Assistant`.
 
 ![Multi-Agent Swarm Handoff to Crop Specialist](https://raw.githubusercontent.com/Darshanv2006/kisan-vani/main/docs/images/crop_specialist_handoff.png)
@@ -533,7 +533,7 @@ uv run python src/dial.py --to your_linphone_username
 
 ## 18. What I Would Improve Next
 
-While Kisan Vani is fully functional and production-ready for primary voice advisory, future enhancements would focus on:
+While Kisan Vani is a working prototype for primary voice advisory, future enhancements would focus on:
 
 1. **Live Government Mandi Integration**: Replace the curated benchmark dataset with real-time API feeds from the Indian Government's Agmarknet / eNAM portal.
 2. **Native Regional Dialect Models**: Expand native STT and TTS models to support regional Indian languages and local dialects (Hindi, Punjabi, Marathi, Telugu, Tamil, Kannada, Gujarati).
