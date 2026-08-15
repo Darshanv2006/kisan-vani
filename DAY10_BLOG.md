@@ -333,7 +333,7 @@ To monitor voice application performance, Kisan Vani logs every completed call s
 - **Backend Sync**: `export_analytics_json()` syncs database analytics to `backend/analytics.json`.
 - **Frontend Route**: Next.js route at `/app/analytics/page.tsx` fetches metrics from `/api/analytics` and displays real-time KPI cards, success rate progress rings, failure cause breakdowns, and recent call logs.
 
-![Kisan Vani Call Analytics Web Dashboard](https://raw.githubusercontent.com/Darshanv2006/kisan-vani/main/docs/images/call_analytics_dashboard_real.png)
+![Kisan Vani Call Analytics Web Dashboard](https://raw.githubusercontent.com/Darshanv2006/kisan-vani/main/docs/images/call_analytics_dashboard_clean.png)
 *Figure 5: Web Call Analytics Dashboard showing call volume KPIs, 91.7% success rate ring, failure cause breakdown, and call log table.*
 
 ---
