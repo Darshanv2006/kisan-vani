@@ -694,7 +694,9 @@ async def my_agent(ctx: JobContext):
             "Behind me are technologies including LiveKit for real-time communication, Deepgram for speech recognition, an LLM for reasoning, and Murf Falcon for natural voice generation.",
             "And today, on Day 10, I'm sharing everything I learned so that other developers can build their own voice agents.",
             "I'm Kisan Vani — a voice-first AI assistant built for Indian farmers. This is my 10-day journey.",
-            "I'm ready to help you now."
+            "I'm really happy with this journey and everything I've learned over these 10 days.",
+            "Thank you for listening and for being part of my journey.",
+            "I'm Kisan Vani, and I'm proud to be built for Indian farmers. Goodbye!"
         ]
 
         async def run_demo_narration():
@@ -707,6 +709,18 @@ async def my_agent(ctx: JobContext):
                 except Exception as err:
                     logger.warning(f"Demo narration playout step notice: {err}")
                     break
+
+            # Ensure final 'Goodbye!' audio playout is 100% complete before hanging up
+            await asyncio.sleep(0.5)
+            logger.info("🎬 [DEMO MODE COMPLETE] Goodbye narration finished. Automatically ending LiveKit call now...")
+            try:
+                await session.aclose()
+            except Exception as e:
+                logger.warning(f"Demo mode auto-hangup notice: {e}")
+            try:
+                await ctx.room.disconnect()
+            except Exception:
+                pass
 
         asyncio.create_task(run_demo_narration())
     else:
